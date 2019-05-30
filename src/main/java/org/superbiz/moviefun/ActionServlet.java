@@ -19,6 +19,8 @@ package org.superbiz.moviefun;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.superbiz.moviefun.movies.Movie;
 import org.superbiz.moviefun.movies.MoviesBean;
 
@@ -41,6 +43,8 @@ public class ActionServlet extends HttpServlet {
 
     @Autowired
     private MoviesBean moviesBean;
+    @Autowired
+    PlatformTransactionManager moviesTransactionManager;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -54,27 +58,28 @@ public class ActionServlet extends HttpServlet {
 
     private void process(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-
         if ("Add".equals(action)) {
-
             String title = request.getParameter("title");
             String director = request.getParameter("director");
             String genre = request.getParameter("genre");
             int rating = Integer.parseInt(request.getParameter("rating"));
             int year = Integer.parseInt(request.getParameter("year"));
-
             Movie movie = new Movie(title, director, genre, rating, year);
-
-            moviesBean.addMovie(movie);
+            new TransactionTemplate(moviesTransactionManager).execute(status -> {
+                moviesBean.addMovie(movie);
+                return null;
+            });
             response.sendRedirect("moviefun");
             return;
 
         } else if ("Remove".equals(action)) {
-
             String[] ids = request.getParameterValues("id");
-            for (String id : ids) {
-                moviesBean.deleteMovieId(new Long(id));
-            }
+            new TransactionTemplate(moviesTransactionManager).execute(status -> {
+                for (String id : ids) {
+                    moviesBean.deleteMovieId(new Long(id));
+                }
+                return null;
+            });
 
             response.sendRedirect("moviefun");
             return;
