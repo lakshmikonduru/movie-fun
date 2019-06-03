@@ -15,4 +15,4 @@ jobs:
         - cf install-plugin -r "CF-Community" mysql-plugin -f
         - cf login -a $CF_API_URL -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE
         - curl https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/5.1.1/flyway-commandline-5.1.1-linux-x64.tar.gz | tar xvz
-        - flyway-*/flyway -url=$CF_API_URL -locations=./db/schema.ddl -user=$CF_USERNAME -password=$CF_PASSWORD clean migrate
+        - flyway-*/flyway -url="jdbc:mysql://q-n3s3y1.q-g3228.bosh:3306/service_instance_db?user=79ec7f1926554551af8c71d296cc3c70&password=jn7q912yoo3ysg8r&useSSL=false" -locations=./db/schema.ddl -user=79ec7f1926554551af8c71d296cc3c70 -password=jn7q912yoo3ysg8r clean migrate
